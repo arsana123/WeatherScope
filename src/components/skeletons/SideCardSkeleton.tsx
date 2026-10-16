@@ -1,10 +1,7 @@
-import React from "react";
 import Card from "../cards/Card";
 import { Skeleton } from "../ui/skeleton";
 
-type Props = {};
-
-export default function SideCardSkeleton({}: Props) {
+export default function SideCardSkeleton() {
   return (
     <>
       <Card

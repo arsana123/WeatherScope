@@ -42,7 +42,7 @@ export const weatherSchema = z.object({
       visibility: z.number(),
       wind_speed: z.number(),
       wind_deg: z.number(),
-      wind_gust: z.number(),
+      wind_gust: z.number().optional(),
       weather: z.array(
         z.object({
           id: z.number(),
@@ -62,7 +62,7 @@ export const weatherSchema = z.object({
       moonrise: z.number(),
       moonset: z.number(),
       moon_phase: z.number(),
-      summary: z.string(),
+      summary: z.string().optional(),
       temp: z.object({
         day: z.number(),
         min: z.number(),
@@ -82,7 +82,7 @@ export const weatherSchema = z.object({
       dew_point: z.number(),
       wind_speed: z.number(),
       wind_deg: z.number(),
-      wind_gust: z.number(),
+      wind_gust: z.number().optional(),
       weather: z.array(
         z.object({
           id: z.number(),

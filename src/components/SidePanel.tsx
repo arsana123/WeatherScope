@@ -1,7 +1,7 @@
 import { getAirPollution } from "@/api";
 import type { Coords } from "../types";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import React, { Suspense, type Dispatch, type SetStateAction } from "react";
+import { Suspense, type Dispatch, type SetStateAction } from "react";
 import Card from "./cards/Card";
 import { Slider } from "./ui/slider";
 import clsx from "clsx";
@@ -9,15 +9,16 @@ import Information from "/src/assets/information.svg?react";
 import ChevronLeft from "/src/assets/ChevronLeft.svg?react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import SidePanelSkeleton from "./skeletons/SidePanelSkeleton";
+import QueryBoundary from "./QueryBoundary";
 
 type Props = {
-  coords: Coords;
+  coords: Coords | null;
   isSidePanelOpen: boolean;
   setIsSidePanelOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function SidePanel(props: Props) {
-  const { isSidePanelOpen, setIsSidePanelOpen } = props;
+  const { coords, isSidePanelOpen, setIsSidePanelOpen } = props;
   return (
     <>
       <div
@@ -29,15 +30,21 @@ export default function SidePanel(props: Props) {
         <button onClick={() => setIsSidePanelOpen(false)}>
           <ChevronLeft className="size-8 invert -ml-2 lg:hidden" />
         </button>
-        <Suspense fallback={<SidePanelSkeleton />}>
-          <AirPollution {...props} />
-        </Suspense>
+        {coords ? (
+          <QueryBoundary title="Air Pollution">
+            <Suspense fallback={<SidePanelSkeleton />}>
+              <AirPollution coords={coords} />
+            </Suspense>
+          </QueryBoundary>
+        ) : (
+          <SidePanelSkeleton />
+        )}
       </div>
     </>
   );
 }
 
-function AirPollution({ coords }: Props) {
+function AirPollution({ coords }: { coords: Coords }) {
   const { data } = useSuspenseQuery({
     queryKey: ["airPollution", coords],
     queryFn: () => getAirPollution(coords),
@@ -61,7 +68,9 @@ function AirPollution({ coords }: Props) {
           </TooltipContent>
         </Tooltip>
       </div>
-      {Object.entries(data?.list[0].components).map(([key, value]) => {
+      {Object.entries(data.list[0].components)
+        .filter((entry): entry is [string, number] => typeof entry[1] === "number")
+        .map(([key, value]) => {
         const pollutant =
           airQualityRanges[key.toUpperCase() as keyof AirQualityRanges];
         const max = Math.max(pollutant["Very Poor"].min, value);
@@ -116,6 +125,7 @@ function AirPollution({ coords }: Props) {
             <div className="flex justify-between">
               {Object.keys(pollutant).map((quality) => (
                 <span
+                  key={quality}
                   className={clsx(
                     "px-2 py-1 rounded-md text-xs font-medium",
                     quality === currentLevel

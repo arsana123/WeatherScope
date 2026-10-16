@@ -1,10 +1,7 @@
-import React from "react";
 import SideCardSkeleton from "./SideCardSkeleton";
 import { Skeleton } from "../ui/skeleton";
 
-type Props = {};
-
-export default function SidePanelSkeleton({}: Props) {
+export default function SidePanelSkeleton() {
   return (
     <>
       <div className="flex flex-col gap-4">
